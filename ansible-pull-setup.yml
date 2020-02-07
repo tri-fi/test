@@ -2,11 +2,11 @@
 #
 ---
 
-- hosts: localhost
+- hosts: proxies
 
   vars:
     # schedule is fed directly to cron
-    schedule: '*/15 * * * *'
+    schedule: '*/2 * * * *'
 
     # User to run ansible-pull as from cron
     cron_user: root

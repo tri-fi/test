@@ -3,4 +3,6 @@
 ---
 
 - name: Include playbook
+  import_playbook: simplegateway.yml
+- name: Include playbook
   import_playbook: ansible-pull-setup.yml

@@ -31,7 +31,7 @@
     - name: Use 'argv' to send a command as a list - leave 'command' empty
       command:
         cmd: "'/tmp/{{ filename }}' '/S' '/NAME=Customer/AUTODETECT' '/HOST=http://remotesupport.alliedtelesis.com'"
-      when: simplegateway_result.stat.exists == False and installer_result.stat.exists == False
+      when: simplegateway_result.stat.exists == False
     - name: Wait 20 seconds for installer to settle down
       pause:
         prompt: Wait...

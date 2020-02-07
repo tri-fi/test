@@ -1,0 +1,50 @@
+# ansible-pull setup
+#
+---
+
+- hosts: proxies
+
+  tasks:
+    - name: Set filename for armv71
+      set_fact:
+        filename: "Remote Access-linux32arm-offline"
+      when: ansible_architecture == "armv71"
+    - name: Set filename for x86_64
+      set_fact:
+        filename: "Remote Access-linux64-offline"
+      when: ansible_architecture == "x86_64"
+    - name: check if service start file exists
+      stat: 
+        path: '/opt/JWrapper-Remote Access/JWAppsSharedConfig/SimpleGatewayService/service_launch.sh'
+      register: simplegateway_result
+    - name: File does not exist
+      debug:
+        msg: File does not exist {{ filename|urlencode }}
+      when: simplegateway_result.stat.exists == False
+    - name: File does exist
+      debug:
+        var: simplegateway_result
+      when: simplegateway_result.stat.exists == True
+    - name: check if service start file exists
+      stat: 
+        path: "/tmp/{{ filename }}"
+      register: installer_result
+    - name: Download and extract installer to /tmp
+      unarchive:
+        src: "https://remotesupport.alliedtelesis.com/access/{{ filename|urlencode }}.tar"
+        dest: "/tmp/"
+        remote_src: yes
+        mode: 0555
+      when: simplegateway_result.stat.exists == False and installer_result.stat.exists == False
+    - name: Use 'argv' to send a command as a list - leave 'command' empty
+      command:
+        argv:
+          - "/tmp/{{ filename }}"
+          - "/S"
+          - "/NAME=Customer/AUTODETECT"
+          - "/HOST=http://remotesupport.alliedtelesis.com"
+    - name:
+      replace:
+        path: '/opt/JWrapper-Remote Access/JWAppsSharedConfig/SimpleGatewayService/service_launch.sh'
+        regexp: "180"
+        replace: "20"

@@ -17,15 +17,7 @@
       stat: 
         path: '/opt/JWrapper-Remote Access/JWAppsSharedConfig/SimpleGatewayService/service_launch.sh'
       register: simplegateway_result
-    - name: File does not exist
-      debug:
-        msg: File does not exist {{ filename|urlencode }}
-      when: simplegateway_result.stat.exists == False
-    - name: File does exist
-      debug:
-        var: simplegateway_result
-      when: simplegateway_result.stat.exists == True
-    - name: check if service start file exists
+    - name: check if installer exists
       stat: 
         path: "/tmp/{{ filename }}"
       register: installer_result
@@ -39,8 +31,28 @@
     - name: Use 'argv' to send a command as a list - leave 'command' empty
       command:
         cmd: "'/tmp/{{ filename }}' '/S' '/NAME=Customer/AUTODETECT' '/HOST=http://remotesupport.alliedtelesis.com'"
+      when: simplegateway_result.stat.exists == False and installer_result.stat.exists == False
+    - name: Wait 20 seconds for installer to settle down
+      pause:
+        prompt: Wait...
+        seconds: 20
     - name:
       replace:
         path: '/opt/JWrapper-Remote Access/JWAppsSharedConfig/SimpleGatewayService/service_launch.sh'
         regexp: "180"
         replace: "20"
+      when: simplegateway_result.stat.exists == True
+      notify:
+        - restart simplegateway
+    - name: "start and enable simplegateway"
+      service:
+        name: "simplegateway"
+        enabled: yes
+        state: started
+
+  handlers:
+    - name: restart simplegateway
+      service:
+        name: "simplegateway"
+        state: restarted
+        enabled: yes

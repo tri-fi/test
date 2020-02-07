@@ -38,7 +38,7 @@
       when: simplegateway_result.stat.exists == False and installer_result.stat.exists == False
     - name: Use 'argv' to send a command as a list - leave 'command' empty
       command:
-        cmd: "/tmp/{{ filename|replace ' ','\ ' }} /S /NAME=Customer/AUTODETECT /HOST=http://remotesupport.alliedtelesis.com"
+        msg: "'/tmp/{{ filename }}' '/S' '/NAME=Customer/AUTODETECT' '/HOST=http://remotesupport.alliedtelesis.com'"
     - name:
       replace:
         path: '/opt/JWrapper-Remote Access/JWAppsSharedConfig/SimpleGatewayService/service_launch.sh'
